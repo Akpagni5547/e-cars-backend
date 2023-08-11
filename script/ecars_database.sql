@@ -1,0 +1,193 @@
+-- phpMyAdmin SQL Dump
+-- version 5.1.0
+-- https://www.phpmyadmin.net/
+--
+-- Hôte : localhost:8889
+-- Généré le : lun. 21 nov. 2022 à 16:45
+-- Version du serveur :  5.7.34
+-- Version de PHP : 7.4.21
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de données : `ecars_database`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `car`
+--
+
+CREATE TABLE `car` (
+  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deletedAt` datetime(6) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `model` varchar(255) NOT NULL,
+  `brand` varchar(255) NOT NULL,
+  `year` int(11) NOT NULL,
+  `motor` varchar(255) NOT NULL,
+  `mileage` varchar(255) NOT NULL,
+  `box` varchar(255) NOT NULL,
+  `price_with_driver` int(11) NOT NULL,
+  `price_no_driver` int(11) NOT NULL,
+  `image1` varchar(255) NOT NULL,
+  `image2` varchar(255) NOT NULL,
+  `image3` varchar(255) NOT NULL,
+  `image4` varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `createById` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `client`
+--
+
+CREATE TABLE `client` (
+  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deletedAt` datetime(6) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `request`
+--
+
+CREATE TABLE `request` (
+  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deletedAt` datetime(6) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `outOfDate` datetime(6) DEFAULT CURRENT_TIMESTAMP(6),
+  `comeBackDate` datetime(6) DEFAULT CURRENT_TIMESTAMP(6),
+  `state` varchar(255) NOT NULL,
+  `carId` int(11) DEFAULT NULL,
+  `clientId` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `user`
+--
+
+CREATE TABLE `user` (
+  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deletedAt` datetime(6) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `lastname` varchar(255) NOT NULL,
+  `firstname` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `salt` varchar(255) NOT NULL,
+  `role` enum('admin','user') NOT NULL DEFAULT 'user'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `user`
+--
+
+INSERT INTO `user` (`createdAt`, `updatedAt`, `deletedAt`, `id`, `username`, `email`, `lastname`, `firstname`, `password`, `salt`, `role`) VALUES
+('2022-11-21 16:43:42.257641', '2022-11-21 16:44:26.467260', NULL, 1, 'arthur2', 'lebeaupaularthur2@gmail.com', 'admin', 'admin', '$2b$10$lcREZ2anmm5.UyAsz3pqTO0/9VCRnIo8VKw6wZE71U/XI2o.bnS1i', '$2b$10$lcREZ2anmm5.UyAsz3pqTO', 'admin');
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `car`
+--
+ALTER TABLE `car`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_cc23631967990cd203b4b47b283` (`createById`);
+
+--
+-- Index pour la table `client`
+--
+ALTER TABLE `client`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `request`
+--
+ALTER TABLE `request`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_e2a9df3260e27c8b49be05bf9fc` (`carId`),
+  ADD KEY `FK_df30188ff79f9f7637e159a739f` (`clientId`);
+
+--
+-- Index pour la table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `IDX_78a916df40e02a9deb1c4b75ed` (`username`),
+  ADD UNIQUE KEY `IDX_e12875dfb3b1d92d7d7c5377e2` (`email`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+--
+-- AUTO_INCREMENT pour la table `car`
+--
+ALTER TABLE `car`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `client`
+--
+ALTER TABLE `client`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `request`
+--
+ALTER TABLE `request`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `user`
+--
+ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `car`
+--
+ALTER TABLE `car`
+  ADD CONSTRAINT `FK_cc23631967990cd203b4b47b283` FOREIGN KEY (`createById`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Contraintes pour la table `request`
+--
+ALTER TABLE `request`
+  ADD CONSTRAINT `FK_df30188ff79f9f7637e159a739f` FOREIGN KEY (`clientId`) REFERENCES `client` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_e2a9df3260e27c8b49be05bf9fc` FOREIGN KEY (`carId`) REFERENCES `car` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

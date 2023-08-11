@@ -1,0 +1,10 @@
+{
+  apps : [
+    {
+      name      : "ecars-backend",
+      script    : "npm",
+      interpreter: "none",
+      args: "run start:prod"
+    }
+  ]
+}
