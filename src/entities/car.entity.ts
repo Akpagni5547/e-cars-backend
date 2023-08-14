@@ -7,9 +7,7 @@ import {
   Column,
   ManyToOne,
   OneToMany,
-  OneToOne,
 } from 'typeorm';
-import DatabaseFile from './file.entity';
 
 @Entity('car')
 export class CarEntity extends TimestampMetadata {
