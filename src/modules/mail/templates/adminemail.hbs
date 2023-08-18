@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouvelle demande de voiture</title>
+</head>
+<body>
+  <h1>Nouvelle demande de voiture</h1>
+  <p>Cher administrateur,</p>
+  <p>Un client a soumis une nouvelle demande de voiture :</p>
+
+  <h2>Informations du client :</h2>
+  <p>Nom : {{ data.client.name }}</p>
+  <p>Email : {{ data.client.email }}</p>
+  <p>Téléphone : {{ data.client.phone }}</p>
+
+  <h2>Options de la demande :</h2>
+  <ul>
+    <li>Option chauffeur : {{ data.driver }}</li>
+    <li>Option sortie en ville : {{ data.out }}</li>
+    <li>Option livraison : {{ data.city }}</li>
+  </ul>
+
+  <h2>Informations de la voiture :</h2>
+  <p>Modèle : {{ data.car.model }}</p>
+  <p>Marque : {{ data.car.brand }}</p>
+
+  <p>Veuillez prendre en charge cette demande et résoudre les détails avec le client.</p>
+
+  <p>Merci !</p>
+</body>
+</html>

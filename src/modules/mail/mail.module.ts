@@ -8,9 +8,10 @@ import { join } from 'path';
   imports: [
     MailerModule.forRoot({
       transport: {
-        service: process.env.SERVICE,
+        port: 587,
+        host: process.env.SERVICE,
         auth: {
-          user: process.env.USER,
+          user: 'postmaster@sandbox8641e0e9e3a24873a99665453cfccbaa.mailgun.org',
           pass: process.env.PASS,
         },
       },
@@ -20,9 +21,6 @@ import { join } from 'path';
       template: {
         dir: join(__dirname, 'templates'),
         adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
-        },
       },
     }),
   ],

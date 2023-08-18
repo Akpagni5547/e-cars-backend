@@ -101,6 +101,9 @@ export class RequestService {
       client: newRequest.client,
       car: newRequest.car,
       adminEmail: 'akpagniaugustin@gmail.com',
+      driver: request.isDelivery ? 'Oui' : 'Non',
+      out: request.isGoOutCity ? 'Oui' : 'Non',
+      city: request.isDriver ? 'Oui' : 'Non',
     });
 
     return newRequest;

@@ -4,7 +4,15 @@ import { MailerService } from '@nestjs-modules/mailer';
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
-  async addedRequestMail(payload) {
-    await this.mailerService.sendMail({});
+  addedRequestMail(payload) {
+    this.mailerService
+      .sendMail(payload)
+      .then(() => {
+        console.log('successfully');
+      })
+      .catch((error) => {
+        console.log(error);
+        console.log('failed');
+      });
   }
 }

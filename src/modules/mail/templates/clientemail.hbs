@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation de votre demande de voiture</title>
+</head>
+<body>
+  <h1>Confirmation de votre demande de voiture</h1>
+  <p>Bonjour {{ data.client.name }},</p>
+  <p>Nous sommes heureux de vous informer que votre demande de voiture a été prise en compte.</p>
+
+  <h2>Informations de la demande :</h2>
+  <p>Modèle : {{ data.car.model }}</p>
+  <p>Marque : {{ data.car.brand }}</p>
+  <p>Options :</p>
+  <ul>
+    <li>Avec chauffeur : {{ data.driver  }}</li>
+    <li>Livraison : {{ data.out }}</li>
+    <li>Sortie de ville : {{ data.city  }}</li>
+  </ul>
+
+  <p>Vous recevrez bientôt un message de notre part avec plus de détails.</p>
+
+  <p>Merci de nous avoir choisis !</p>
+</body>
+</html>
