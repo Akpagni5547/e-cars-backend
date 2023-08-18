@@ -7,22 +7,29 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EVENTS } from 'src/config/events';
+// import { EVENTS } from 'src/config/events';
 import { UserRoleEnum } from 'src/enums/user-role.enum';
 import { Repository } from 'typeorm';
-import { UserService } from '../user/user.service';
+// import { UserService } from '../user/user.service';
 import { AddRequestDto } from './dto/add-request.dto';
 import { RequestEntity } from '../../entities/request.entity';
-import { Cache } from 'cache-manager';
+// import { Cache } from 'cache-manager';
 import { ClientService } from '../client/client.service';
+import { CarEntity } from 'src/entities/car.entity';
+import { ClientEntity } from 'src/entities/client.entity';
+import { UpdateRequestDto } from './dto/update-request.dto';
+import { EVENTS } from 'src/config/events';
 @Injectable()
 export class RequestService {
   constructor(
     @InjectRepository(RequestEntity)
     private requestRepository: Repository<RequestEntity>,
+    @InjectRepository(CarEntity)
+    private carRepository: Repository<CarEntity>,
+    @InjectRepository(ClientEntity)
+    private clientRepository: Repository<ClientEntity>,
     private clientService: ClientService,
-    private eventEmitter: EventEmitter2,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private eventEmitter: EventEmitter2, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findRequestById(id: number, user) {
@@ -36,23 +43,20 @@ export class RequestService {
     } else throw new UnauthorizedException();
   }
 
-  async updateRequest(
-    id: number,
-    request: Partial<AddRequestDto>,
-    user,
-  ): Promise<RequestEntity> {
-    const newRequest = await this.requestRepository.preload({
-      id,
-      ...request,
+  async updateRequest(id: number, request: UpdateRequestDto): Promise<any> {
+    const requestFounded = await this.requestRepository.findOne({
+      where: { id: id },
     });
 
-    if (!newRequest) {
-      throw new NotFoundException(`the request with id ${id} don't exist`);
+    if (!requestFounded) {
+      throw new NotFoundException('Impossible de modifier cette requete');
     }
-
-    /* if (user.role) return await this.requestRepository.save(newRequest);
-    else new UnauthorizedException(''); */
-    return await this.requestRepository.save(newRequest);
+    await this.requestRepository.update(id, {
+      state: request.isAccept ? 'accepted' : 'declined',
+    });
+    return {
+      message: 'La requete a été prise en compte avec succès',
+    };
   }
 
   async getRequests(user): Promise<RequestEntity[]> {
@@ -62,11 +66,42 @@ export class RequestService {
     return await this.requestRepository.find({ where: { deletedAt: null } });
   }
 
-  async addRequest(request: AddRequestDto): Promise<RequestEntity> {
-    const newRequest = this.requestRepository.create(request);
-    console.log(request);
-    /*  newRequest.client = client; */
+  async addRequest(request: AddRequestDto): Promise<any> {
+    const car = await this.carRepository.findOne({
+      where: { id: request.carId },
+    });
+    if (!car) {
+      throw new NotFoundException(`Cette voiture n'existe pas`);
+    }
+    let client = await this.clientRepository.findOne({
+      where: { email: request.clientEmail },
+    });
+    if (!client) {
+      client = this.clientRepository.create({
+        email: request.clientEmail,
+        phone: request.clientPhone,
+        name: request.clientName,
+      });
+      await this.clientRepository.save(client);
+    }
+
+    const newRequest = this.requestRepository.create({
+      outOfDate: request.startDate,
+      comeBackDate: request.endDate,
+      state: 'pending',
+      isDelivery: request.isDelivery,
+      isGoOutCity: request.isGoOutCity,
+      isDriver: request.isDriver,
+      client: client,
+      car: car,
+    });
     await this.requestRepository.save(newRequest);
+
+    this.eventEmitter.emit(EVENTS.REQUEST_ADD, {
+      client: newRequest.client,
+      car: newRequest.car,
+      adminEmail: 'akpagniaugustin@gmail.com',
+    });
 
     return newRequest;
   }

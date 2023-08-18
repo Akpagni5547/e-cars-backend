@@ -36,6 +36,15 @@ export class RequestEntity extends TimestampMetadata {
   @Column()
   state: string;
 
+  @Column()
+  isDriver: boolean;
+
+  @Column()
+  isDelivery: boolean;
+
+  @Column()
+  isGoOutCity: boolean;
+
   @ManyToOne((type) => ClientEntity, (client) => client.requests, {
     cascade: ['insert', 'update'],
     nullable: true,

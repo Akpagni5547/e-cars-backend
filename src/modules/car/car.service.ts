@@ -21,8 +21,7 @@ export class CarService {
     @InjectRepository(CarEntity)
     private carRepository: Repository<CarEntity>,
     private userService: UserService,
-    private eventEmitter: EventEmitter2,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private eventEmitter: EventEmitter2, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findCarById(id: number, user) {

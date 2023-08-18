@@ -1,14 +1,41 @@
-import { CarEntity } from 'src/entities/car.entity';
-import { ClientEntity } from 'src/entities/client.entity';
+import {
+  IsNumber,
+  IsNotEmpty,
+  IsDate,
+  IsString,
+  IsEmail,
+  IsBoolean,
+} from 'class-validator';
 
 export class AddRequestDto {
-  car: CarEntity;
+  @IsNumber()
+  @IsNotEmpty()
+  carId: number;
 
-  outOfDate: Date;
+  @IsDate()
+  startDate: Date;
 
-  comeBackDate: Date;
+  @IsDate()
+  endDate: Date;
 
-  state: string;
+  @IsBoolean()
+  isDriver: boolean;
 
-  client: ClientEntity;
+  @IsBoolean()
+  isDelivery: boolean;
+
+  @IsBoolean()
+  isGoOutCity: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  clientName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  clientPhone: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  clientEmail: string;
 }

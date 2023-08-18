@@ -11,11 +11,6 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.enableCors();
-  await app.listen(configService.get('APP_PORT'));
-  app.use((req: Request, res: Response, next) => {
-    console.log('Middelware from app.use');
-    next();
-  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -27,7 +22,9 @@ async function bootstrap() {
       },
     }),
   );
+
   app.useGlobalInterceptors(new DurationInterceptor());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(new Reflector()));
+  await app.listen(configService.get('APP_PORT'));
 }
 bootstrap();

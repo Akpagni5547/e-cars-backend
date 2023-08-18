@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
 import { AddRequestDto } from './dto/add-request.dto';
 import { RequestEntity } from '../../entities/request.entity';
 import { RequestService } from './request.service';
+import { UpdateRequestDto } from './dto/update-request.dto';
 
 @Controller('request')
 export class RequestController {
@@ -29,19 +30,17 @@ export class RequestController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(CacheInterceptor)
-  @CacheKey('request.get.all')
-  @CacheTTL(60 * 60 * 24)
+  // @UseInterceptors(CacheInterceptor)
+  // @CacheKey('request.get.all')
+  // @CacheTTL(60 * 60 * 24)
   async getAllRequest(@User() user): Promise<RequestEntity[]> {
     console.log('WE ARE IN THE  REQUEST');
     return await this.requestService.getRequests(user);
   }
-
   @Post()
   async addRequest(
     @Body() addRequestDto: AddRequestDto,
   ): Promise<RequestEntity> {
-    console.log('SEE THE ID ');
     return await this.requestService.addRequest(addRequestDto);
   }
 
@@ -57,11 +56,10 @@ export class RequestController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   async updateRequest(
-    @Body() addRequestDto: Partial<AddRequestDto>,
+    @Body() updateRequestDto: UpdateRequestDto,
     @Param('id', ParseIntPipe) id: number,
-    @User() user,
   ): Promise<RequestEntity> {
-    return await this.requestService.updateRequest(id, addRequestDto, user);
+    return await this.requestService.updateRequest(id, updateRequestDto);
   }
 
   @Delete(':id')

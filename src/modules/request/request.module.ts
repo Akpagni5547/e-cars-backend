@@ -8,10 +8,12 @@ import { RequestEntity } from '../../entities/request.entity';
 import { RequestController } from './request.controller';
 import { RequestService } from './request.service';
 import { RequestListener } from './listeners/request.listener';
+import { CarEntity } from 'src/entities/car.entity';
+import { ClientEntity } from 'src/entities/client.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RequestEntity]),
+    TypeOrmModule.forFeature([RequestEntity, CarEntity, ClientEntity]),
     UserModule,
     MailModule,
     ClientModule,

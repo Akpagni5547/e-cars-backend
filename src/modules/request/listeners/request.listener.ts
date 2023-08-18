@@ -9,5 +9,6 @@ export class RequestListener {
   @OnEvent(EVENTS.REQUEST_ADD)
   async handleRequestAdded(payload: any) {
     console.log('functionality coming soon');
+    console.log(payload);
   }
 }

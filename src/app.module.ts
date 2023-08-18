@@ -1,11 +1,8 @@
-import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 // import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import appConfig from './config/app.config';
 import { CarModule } from './modules/car/car.module';
 import { ClientModule } from './modules/client/client.module';
@@ -31,22 +28,12 @@ import { UserModule } from './modules/user/user.module';
       synchronize: true,
       debug: false,
     }),
+    UserModule,
     CarModule,
     RequestModule,
     ClientModule,
-    UserModule,
     ImageModule,
     EventEmitterModule.forRoot(),
-    CacheModule.register({}),
   ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
-  exports: [AppService],
 })
 export class AppModule {}
