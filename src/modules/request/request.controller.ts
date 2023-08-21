@@ -45,7 +45,7 @@ export class RequestController {
   }
 
   @Get(':id')
-  async getRequest(@Param('id', ParseIntPipe) id): Promise<RequestEntity> {
+  async getRequest(@Param('id') id): Promise<RequestEntity> {
     return await this.requestService.findRequestById(id);
   }
 
@@ -53,14 +53,14 @@ export class RequestController {
   @UseGuards(JwtAuthGuard)
   async updateRequest(
     @Body() updateRequestDto: UpdateRequestDto,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
   ): Promise<RequestEntity> {
     return await this.requestService.updateRequest(id, updateRequestDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async deleteRequest(@Param('id', ParseIntPipe) id: number, @User() user) {
+  async deleteRequest(@Param('id') id: string, @User() user) {
     return this.requestService.softDeleteRequest(id, user);
   }
 }

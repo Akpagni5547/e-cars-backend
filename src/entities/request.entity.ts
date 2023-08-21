@@ -7,12 +7,14 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  BeforeInsert,
 } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Entity('request')
 export class RequestEntity extends TimestampMetadata {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne((type) => CarEntity, (car) => car.requests, {
     cascade: ['insert', 'update'],
@@ -51,4 +53,9 @@ export class RequestEntity extends TimestampMetadata {
     eager: true,
   })
   client: ClientEntity;
+
+  @BeforeInsert()
+  generateId() {
+    this.id = uuidv4();
+  }
 }

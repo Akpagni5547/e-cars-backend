@@ -32,7 +32,7 @@ export class RequestService {
     private eventEmitter: EventEmitter2, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async findRequestById(id: number) {
+  async findRequestById(id: string) {
     const request = await this.requestRepository.findOne({ where: { id: id } });
     if (!request) {
       throw new NotFoundException(`the request with id ${id} don't exist`);
@@ -44,7 +44,7 @@ export class RequestService {
     // } else throw new UnauthorizedException();
   }
 
-  async updateRequest(id: number, request: UpdateRequestDto): Promise<any> {
+  async updateRequest(id: string, request: UpdateRequestDto): Promise<any> {
     const requestFounded = await this.requestRepository.findOne({
       where: { id: id },
     });
@@ -101,6 +101,7 @@ export class RequestService {
     this.eventEmitter.emit(EVENTS.REQUEST_ADD, {
       client: newRequest.client,
       car: newRequest.car,
+      id: newRequest.id,
       adminEmail: 'akpagniaugustin@gmail.com',
       driver: request.isDelivery ? 'Oui' : 'Non',
       out: request.isGoOutCity ? 'Oui' : 'Non',
@@ -110,7 +111,7 @@ export class RequestService {
     return newRequest;
   }
 
-  async softDeleteRequest(id: number, user) {
+  async softDeleteRequest(id: string, user) {
     const request = await this.requestRepository.findOne({ where: { id: id } });
     console.log('request delete');
     if (!request) {
