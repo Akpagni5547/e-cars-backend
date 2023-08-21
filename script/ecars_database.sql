@@ -193,8 +193,14 @@ ALTER TABLE `request`
   ADD COLUMN `isGoOutCity` BOOLEAN DEFAULT false,
   ADD COLUMN `isDelivery` BOOLEAN DEFAULT false;
 
-  ALTER TABLE `request`
-MODIFY COLUMN `id` char(36) NOT NULL;
+-- Étape 1 : Supprimer la clé primaire existante
+ALTER TABLE `request` DROP PRIMARY KEY;
+
+-- Étape 2 : Modifier le type de la colonne `id` en UUID
+ALTER TABLE `request` MODIFY COLUMN `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL;
+
+-- Étape 3 : Ajouter la nouvelle clé primaire
+ALTER TABLE `request` ADD PRIMARY KEY (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
