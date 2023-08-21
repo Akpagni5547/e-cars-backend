@@ -32,15 +32,16 @@ export class RequestService {
     private eventEmitter: EventEmitter2, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async findRequestById(id: number, user) {
+  async findRequestById(id: number) {
     const request = await this.requestRepository.findOne({ where: { id: id } });
     if (!request) {
       throw new NotFoundException(`the request with id ${id} don't exist`);
     }
+    return request;
 
-    if (user.role === UserRoleEnum.ADMIN) {
-      return request;
-    } else throw new UnauthorizedException();
+    // if (user.role === UserRoleEnum.ADMIN) {
+    //   return request;
+    // } else throw new UnauthorizedException();
   }
 
   async updateRequest(id: number, request: UpdateRequestDto): Promise<any> {

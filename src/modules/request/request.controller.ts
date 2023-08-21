@@ -45,12 +45,8 @@ export class RequestController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  async getRequest(
-    @Param('id', ParseIntPipe) id,
-    @User() user,
-  ): Promise<RequestEntity> {
-    return await this.requestService.findRequestById(id, user);
+  async getRequest(@Param('id', ParseIntPipe) id): Promise<RequestEntity> {
+    return await this.requestService.findRequestById(id);
   }
 
   @Patch(':id')
