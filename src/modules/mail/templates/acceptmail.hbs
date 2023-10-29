@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation de votre demande</title>
+</head>
+<body>
+  <h1>Confirmation de votre demande de voiture</h1>
+  <p>Bonjour {{ data.client.name }},</p>
+  <p>Nous sommes heureux de vous informer que votre demande de voiture a été acceptée.</p>
+
+  <h2>Informations de la demande :</h2>
+  <p>Identifiant de la requête : {{ data.id }}</p>
+  <p>Modèle : {{ data.car.model }}</p>
+  <p>Marque : {{ data.car.brand }}</p>
+  <p>Options :</p>
+  <ul>
+    <li>Avec chauffeur : {{ data.driver  }}</li>
+    <li>Livraison : {{ data.out }}</li>
+    <li>Sortie de ville : {{ data.city  }}</li>
+  </ul>
+
+  <p>Vous pouvez maintenant procéder au paiement en cliquant sur le bouton ci-dessous :</p>
+
+  <a href="{{ data.paymentLink }}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Payer Maintenant</a>
+
+  <p>Une fois le paiement effectué, vous recevrez une confirmation de réservation détaillée. Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+
+  <p>Merci de nous avoir choisis !</p>
+</body>
+</html>

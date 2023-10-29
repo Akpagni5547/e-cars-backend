@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation de paiement réussi</title>
+</head>
+<body>
+  <h1>Confirmation de paiement réussi</h1>
+  <p>Bonjour {{ data.client.name }},</p>
+  <p>Nous sommes ravis de vous informer que votre paiement a été traité avec succès. Votre demande de voiture est désormais confirmée.</p>
+
+  <h2>Informations de la demande :</h2>
+  <p>Identifiant de la requête : {{ data.id }}</p>
+  <p>Modèle : {{ data.car.model }}</p>
+  <p>Marque : {{ data.car.brand }}</p>
+  <p>Options :</p>
+  <ul>
+    <li>Avec chauffeur : {{ data.driver }}</li>
+    <li>Livraison : {{ data.out }}</li>
+    <li>Sortie de ville : {{ data.city }}</li>
+  </ul>
+
+  <p>Un message de confirmation détaillé vous sera envoyé prochainement avec les informations finales de votre réservation. En attendant, n'hésitez pas à nous contacter si vous avez des questions ou des besoins particuliers.</p>
+
+  <p>Merci de nous faire confiance pour votre location de voiture !</p>
+</body>
+</html>

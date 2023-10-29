@@ -25,7 +25,6 @@ export class ClientController {
   @CacheKey('client.get.all')
   @CacheTTL(60 * 60 * 24)
   async getAllClients(@User() user): Promise<ClientEntity[]> {
-    console.log('WE ARE IN THE  REQUEST');
     return await this.clientService.getClients(user);
   }
 

@@ -1,10 +1,13 @@
 import {
   CACHE_MANAGER,
+  HttpServer,
   Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { AxiosError, AxiosRequestConfig } from 'axios';
+import { catchError, firstValueFrom } from 'rxjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 // import { EVENTS } from 'src/config/events';
@@ -19,6 +22,8 @@ import { CarEntity } from 'src/entities/car.entity';
 import { ClientEntity } from 'src/entities/client.entity';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { EVENTS } from 'src/config/events';
+import { HttpService } from '@nestjs/axios';
+import { TransactionEntity } from 'src/entities/transaction.entity';
 @Injectable()
 export class RequestService {
   constructor(
@@ -26,10 +31,12 @@ export class RequestService {
     private requestRepository: Repository<RequestEntity>,
     @InjectRepository(CarEntity)
     private carRepository: Repository<CarEntity>,
+    @InjectRepository(TransactionEntity)
+    private transactionRepository: Repository<TransactionEntity>,
     @InjectRepository(ClientEntity)
     private clientRepository: Repository<ClientEntity>,
-    private clientService: ClientService,
     private eventEmitter: EventEmitter2, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly httpService: HttpService,
   ) {}
 
   async findRequestById(id: string) {
@@ -44,7 +51,11 @@ export class RequestService {
     // } else throw new UnauthorizedException();
   }
 
-  async updateRequest(id: string, request: UpdateRequestDto): Promise<any> {
+  async updateRequest(
+    id: string,
+    request: UpdateRequestDto,
+    notifyUrl: string,
+  ): Promise<any> {
     const requestFounded = await this.requestRepository.findOne({
       where: { id: id },
     });
@@ -52,16 +63,101 @@ export class RequestService {
     if (!requestFounded) {
       throw new NotFoundException('Impossible de modifier cette requete');
     }
+
+    // calcul du montant
+
+    let amount = 0;
+    // Prix avec ou sans chauffeur
+    amount += requestFounded.isDelivery
+      ? requestFounded.car.price_with_driver
+      : requestFounded.car.price_no_driver;
+    // Surplus en dehors de la ville
+    amount += requestFounded.isGoOutCity ? 15000 : 0;
+    // Surplus si livraison
+    amount += requestFounded.isDelivery ? 10000 : 0;
+
+    if (request.isAccept) {
+      // init payment
+      const baseUrl = process.env.PAYMENT_URL;
+
+      const transaction = {
+        amount: amount,
+        api_key: process.env.PAYMENT_KEY,
+        transaction_id: requestFounded.id,
+        description: requestFounded.id,
+        lang: 'fr',
+        currency: 'XOF',
+        channel: 'MOBILE_MONEY',
+        country_code: 'CI',
+        customer_firstname: requestFounded.client.name,
+        customer_email: requestFounded.client.email,
+        customer_phone_number: requestFounded.client.phone,
+        notif_url: notifyUrl,
+      };
+
+      // faire le post vers paynat
+
+      const requestConfig: AxiosRequestConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      };
+
+      const { data } = await firstValueFrom(
+        this.httpService.post(`${baseUrl}`, transaction, requestConfig).pipe(
+          catchError((error: AxiosError) => {
+            console.log(error.toJSON());
+            throw "Une erreur s'est produite lors de l'initialisation du paiement";
+          }),
+        ),
+      );
+
+      // ensuite stocker les informations de paiements
+      const newTransaction =  this.transactionRepository.create({
+        channel: transaction.channel,
+        amount: transaction.amount,
+        lang: transaction.lang,
+        currency: transaction.currency,
+        country_code: transaction.country_code,
+        requestId: id,
+        reference: data.data.reference,
+        response: JSON.stringify(data.data)
+      });
+      await this.transactionRepository.save(newTransaction);
+
+      // send email
+      this.eventEmitter.emit(EVENTS.APPROVE_REQUEST, {
+        client: requestFounded.client,
+        car: requestFounded.car,
+        id: requestFounded.id,
+        adminEmail: 'akpagniaugustin@gmail.com',
+        paymentLink: data.data.url,
+        driver: requestFounded.isDelivery ? 'Oui' : 'Non',
+        out: requestFounded.isGoOutCity ? 'Oui' : 'Non',
+        city: requestFounded.isDriver ? 'Oui' : 'Non',
+      });
+    } else {
+      // send email
+      this.eventEmitter.emit(EVENTS.REFUSED_REQUEST, {
+        client: requestFounded.client,
+        car: requestFounded.car,
+        id: requestFounded.id,
+        adminEmail: 'akpagniaugustin@gmail.com',
+        driver: requestFounded.isDelivery ? 'Oui' : 'Non',
+        out: requestFounded.isGoOutCity ? 'Oui' : 'Non',
+        city: requestFounded.isDriver ? 'Oui' : 'Non',
+      });
+    }
     await this.requestRepository.update(id, {
       state: request.isAccept ? 'accepted' : 'declined',
     });
     return {
-      message: 'La requete a été prise en compte avec succès',
+      message: 'La requete a été mise à jour',
     };
   }
 
   async getRequests(user): Promise<RequestEntity[]> {
-    console.log('WE ARE IN THE SERVICE');
     if (user.role === UserRoleEnum.ADMIN || user.role === UserRoleEnum.USER)
       return await this.requestRepository.find();
     return await this.requestRepository.find({ where: { deletedAt: null } });
@@ -113,7 +209,6 @@ export class RequestService {
 
   async softDeleteRequest(id: string, user) {
     const request = await this.requestRepository.findOne({ where: { id: id } });
-    console.log('request delete');
     if (!request) {
       throw new NotFoundException('');
     }

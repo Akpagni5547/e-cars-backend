@@ -29,7 +29,6 @@ export class CarService {
     if (!car) {
       throw new NotFoundException(`car with id ${id} don't exist`);
     }
-    console.log('SERVICE CAR F' + user.role);
 
     if (this.userService.isOwnerOrAdmin(car, user)) {
       return car;
@@ -41,8 +40,7 @@ export class CarService {
   }
 
   async addCar(car: AddCarDto, user): Promise<CarEntity> {
-    console.log('CAR', car);
-    console.log('SERVICE CAR F' + user.username);
+
     const newCar = this.carRepository.create(car);
     newCar.createBy = user;
     await this.carRepository.save(newCar);
@@ -76,7 +74,6 @@ export class CarService {
         id: id,
       },
     });
-    console.log('car', car);
     if (!car) {
       throw new NotFoundException('');
     }

@@ -8,11 +8,8 @@ export class MailService {
     this.mailerService
       .sendMail(payload)
       .then(() => {
-        console.log('successfully');
       })
       .catch((error) => {
-        console.log(error);
-        console.log('failed');
       });
   }
 }

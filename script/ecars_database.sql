@@ -74,12 +74,33 @@ CREATE TABLE `request` (
   `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   `deletedAt` datetime(6) DEFAULT NULL,
-  `id` int(11) NOT NULL,
+  `id` varchar(36) NOT NULL,
   `outOfDate` datetime(6) DEFAULT CURRENT_TIMESTAMP(6),
   `comeBackDate` datetime(6) DEFAULT CURRENT_TIMESTAMP(6),
   `state` varchar(255) NOT NULL,
   `carId` int(11) DEFAULT NULL,
   `clientId` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `transaction`
+--
+CREATE TABLE `transaction` (
+  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deletedAt` datetime(6) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `requestId` VARCHAR(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `amount` decimal(10, 2) NOT NULL,
+  `lang` varchar(10) NOT NULL,
+  `currency` varchar(10) NOT NULL,
+  `channel` varchar(255) NOT NULL,
+  `reference` varchar(255) NOT NULL,
+  `country_code` varchar(10) NOT NULL,
+  `response` TEXT,
+  `status` enum('pending','succes', 'failed') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -107,7 +128,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`createdAt`, `updatedAt`, `deletedAt`, `id`, `username`, `email`, `lastname`, `firstname`, `password`, `salt`, `role`) VALUES
-('2022-11-21 16:43:42.257641', '2022-11-21 16:44:26.467260', NULL, 1, 'arthur2', 'lebeaupaularthur2@gmail.com', 'admin', 'admin', '$2b$10$lcREZ2anmm5.UyAsz3pqTO0/9VCRnIo8VKw6wZE71U/XI2o.bnS1i', '$2b$10$lcREZ2anmm5.UyAsz3pqTO', 'admin');
+('2022-11-21 16:43:42.257641', '2022-11-21 16:44:26.467260', NULL, 1, 'arthur2', 'helios@gmail.com', 'admin', 'admin', '$2b$10$cm2U7yWd5y3/.IxQz26HJ.a8xDVUhiF.YAXTxoBeVrV3i2U0JAWLW', '$2b$10$cm2U7yWd5y3/.IxQz26HJ.', 'admin');
 
 --
 -- Index pour les tables déchargées
@@ -119,6 +140,12 @@ INSERT INTO `user` (`createdAt`, `updatedAt`, `deletedAt`, `id`, `username`, `em
 ALTER TABLE `car`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_cc23631967990cd203b4b47b283` (`createById`);
+
+-- Index pour la table `transaction`
+--
+ALTER TABLE `transaction`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_request_id` (`requestId`);
 
 --
 -- Index pour la table `client`
@@ -158,6 +185,8 @@ ALTER TABLE `car`
 ALTER TABLE `client`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+
+
 --
 -- AUTO_INCREMENT pour la table `request`
 --
@@ -188,21 +217,60 @@ ALTER TABLE `request`
   ADD CONSTRAINT `FK_e2a9df3260e27c8b49be05bf9fc` FOREIGN KEY (`carId`) REFERENCES `car` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 
-  ALTER TABLE `request`
+
+
+ALTER TABLE `request`
   ADD COLUMN `isDriver` BOOLEAN DEFAULT false,
   ADD COLUMN `isGoOutCity` BOOLEAN DEFAULT false,
   ADD COLUMN `isDelivery` BOOLEAN DEFAULT false;
+
+ALTER TABLE `request`
+  ADD COLUMN `statusPayment` varchar(255) NOT NULL;
 
 -- Étape 1 : Supprimer la clé primaire existante
 ALTER TABLE `request` DROP PRIMARY KEY;
 
 -- Étape 2 : Modifier le type de la colonne `id` en UUID
-ALTER TABLE `request` MODIFY COLUMN `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL;
+ALTER TABLE `request` MODIFY COLUMN `id` VARCHAR(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL;
 
 -- Étape 3 : Ajouter la nouvelle clé primaire
 ALTER TABLE `request` ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT pour la table `transaction`
+--
+ALTER TABLE `transaction`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Contraintes pour la table `transaction`
+--
+
+ALTER TABLE `transaction`
+   ADD CONSTRAINT `FK_request_id` FOREIGN KEY (`requestId`) REFERENCES `request` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+/*
+ALTER TABLE `transaction`
+   ADD CONSTRAINT `FK_request_id` FOREIGN KEY (`requestId`) REFERENCES `request` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+   ALTER TABLE `transaction` MODIFY COLUMN `requestId`varchar(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL;
+
+
+ALTER TABLE `transaction` DROP PRIMARY KEY;
+
+ALTER TABLE `transaction` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `transaction`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `transaction`
+  ADD KEY `FK_request_id` (`requestId`);
+
+
+ALTER TABLE `request` ADD PRIMARY KEY (`id`);
+*/

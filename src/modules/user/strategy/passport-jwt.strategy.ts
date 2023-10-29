@@ -22,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: PayloadInterface) {
-    console.log(payload);
     const user = await this.userRepository.findOne({
       where: {
         username: payload.username,

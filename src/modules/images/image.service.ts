@@ -6,7 +6,6 @@ import * as fs from 'fs';
 export class ImageService {
   async getImage(filename: string, @Res() res: Response) {
     const imagePath = path.join(process.cwd(), 'uploads', filename);
-    console.log(imagePath);
     if (!fs.existsSync(imagePath)) {
       throw new NotFoundException('Image not found skjnsdajs');
     }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refus de votre demande</title>
+</head>
+<body>
+  <h1>Refus de votre demande de voiture</h1>
+  <p>Bonjour {{ data.client.name }},</p>
+  <p>Nous regrettons de vous informer que votre demande de location de voiture a été refusée.</p>
+
+  <h2>Informations de la demande :</h2>
+  <p>Identifiant de la requête : {{ data.id }}</p>
+  <p>Modèle : {{ data.car.model }}</p>
+  <p>Marque : {{ data.car.brand }}</p>
+  <p>Options :</p>
+  <ul>
+    <li>Avec chauffeur : {{ data.driver  }}</li>
+    <li>Livraison : {{ data.out }}</li>
+    <li>Sortie de ville : {{ data.city  }}</li>
+  </ul>
+
+   <p>Nous sommes désolés que nous ne puissions pas répondre favorablement à votre demande cette fois-ci. Si vous avez des questions ou si vous souhaitez en savoir plus sur les raisons de ce refus, n'hésitez pas à nous contacter.</p>
+
+  <p>Merci de nous avoir considérés, et nous espérons avoir l'opportunité de vous servir à l'avenir.</p>
+</body>
+</html>

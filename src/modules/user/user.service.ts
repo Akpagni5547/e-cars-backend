@@ -42,14 +42,12 @@ export class UserService {
 
   async login(credentials: LoginCredentialsDto) {
     const { username, password } = credentials;
-    console.log('user login:', username);
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username or user.email = :username', {
         username,
       })
       .getOne();
-    console.log('user:', user);
     if (!user) throw new NotFoundException('bad username or password');
 
     const hashedPassword = await bcrypt.hash(password, user.salt);
@@ -72,7 +70,6 @@ export class UserService {
   }
 
   isOwnerOrAdmin(objet, user) {
-    console.log('SERVICE ISOW' + user.id);
     if (
       user.role == UserRoleEnum.ADMIN ||
       (objet.createBy && objet.createBy.id == user.id)

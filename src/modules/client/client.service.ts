@@ -19,9 +19,7 @@ export class ClientService {
   ) {}
 
   async getClients(user): Promise<ClientEntity[]> {
-    console.log('WE ARE IN THE SERVICE');
     if (user.role === UserRoleEnum.ADMIN || user.role === UserRoleEnum.USER)
-      console.log('WE ARE IN THE SERVICE 2');
     return await this.clientRepository.find();
   }
 

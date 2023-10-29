@@ -87,7 +87,6 @@ export class CarController {
     @Param('id', ParseIntPipe) id: number,
     @User() user,
   ): Promise<CarEntity> {
-    console.log('SERVICE');
     return await this.carService.findCarById(id, user);
   }
 

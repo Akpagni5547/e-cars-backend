@@ -9,6 +9,8 @@ import { ClientModule } from './modules/client/client.module';
 import { ImageModule } from './modules/images/image.module';
 import { RequestModule } from './modules/request/request.module';
 import { UserModule } from './modules/user/user.module';
+import { TransactionModule } from './modules/transactions/transaction.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { UserModule } from './modules/user/user.module';
     UserModule,
     CarModule,
     RequestModule,
+    TransactionModule,
     ClientModule,
     ImageModule,
     EventEmitterModule.forRoot(),

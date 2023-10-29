@@ -1,31 +1,26 @@
 import {
   Body,
-  CacheInterceptor,
-  CacheKey,
-  CacheTTL,
   Controller,
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
 import { AddRequestDto } from './dto/add-request.dto';
 import { RequestEntity } from '../../entities/request.entity';
 import { RequestService } from './request.service';
 import { UpdateRequestDto } from './dto/update-request.dto';
+import { Request} from "express"
 
 @Controller('request')
 export class RequestController {
   constructor(
     private requestService: RequestService,
-    private reflector: Reflector,
   ) {}
 
   @Get()
@@ -34,7 +29,6 @@ export class RequestController {
   // @CacheKey('request.get.all')
   // @CacheTTL(60 * 60 * 24)
   async getAllRequest(@User() user): Promise<RequestEntity[]> {
-    console.log('WE ARE IN THE  REQUEST');
     return await this.requestService.getRequests(user);
   }
   @Post()
@@ -52,10 +46,15 @@ export class RequestController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   async updateRequest(
+    @Req() req: Request,
     @Body() updateRequestDto: UpdateRequestDto,
     @Param('id') id: string,
   ): Promise<RequestEntity> {
-    return await this.requestService.updateRequest(id, updateRequestDto);
+    const protocol = req.protocol;
+    const host = req.get("Host");
+    // const notifyUrl = `${protocol}//${host}/transaction/callback`;
+    const notifyUrl = "https://webhook.site/73058223-3c9a-45c6-80ee-586a0d05c393";
+    return await this.requestService.updateRequest(id, updateRequestDto, notifyUrl);
   }
 
   @Delete(':id')

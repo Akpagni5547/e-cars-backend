@@ -10,6 +10,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { RequestStatusPaymentEnum } from 'src/enums/status.enum';
 
 @Entity('request')
 export class RequestEntity extends TimestampMetadata {
@@ -46,6 +47,13 @@ export class RequestEntity extends TimestampMetadata {
 
   @Column()
   isGoOutCity: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: RequestStatusPaymentEnum,
+    default: RequestStatusPaymentEnum.NOT_INITIATED,
+  })
+  statusPayment: string;
 
   @ManyToOne((type) => ClientEntity, (client) => client.requests, {
     cascade: ['insert', 'update'],

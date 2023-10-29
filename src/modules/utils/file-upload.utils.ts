@@ -1,7 +1,6 @@
 import { extname } from 'path';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
 import { existsSync, writeFile, mkdirSync, readFile, unlink } from 'fs';
 import { promisify } from 'util';
 
