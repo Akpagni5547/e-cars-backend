@@ -84,24 +84,7 @@ CREATE TABLE `request` (
 
 -- --------------------------------------------------------
 
---
--- Structure de la table `transaction`
---
-CREATE TABLE `transaction` (
-  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-  `deletedAt` datetime(6) DEFAULT NULL,
-  `id` int(11) NOT NULL,
-  `requestId` VARCHAR(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
-  `amount` decimal(10, 2) NOT NULL,
-  `lang` varchar(10) NOT NULL,
-  `currency` varchar(10) NOT NULL,
-  `channel` varchar(255) NOT NULL,
-  `reference` varchar(255) NOT NULL,
-  `country_code` varchar(10) NOT NULL,
-  `response` TEXT,
-  `status` enum('pending','succes', 'failed') NOT NULL DEFAULT 'pending'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 -- --------------------------------------------------------
 
@@ -141,11 +124,7 @@ ALTER TABLE `car`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_cc23631967990cd203b4b47b283` (`createById`);
 
--- Index pour la table `transaction`
---
-ALTER TABLE `transaction`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_request_id` (`requestId`);
+
 
 --
 -- Index pour la table `client`
@@ -224,8 +203,6 @@ ALTER TABLE `request`
   ADD COLUMN `isGoOutCity` BOOLEAN DEFAULT false,
   ADD COLUMN `isDelivery` BOOLEAN DEFAULT false;
 
-ALTER TABLE `request`
-  ADD COLUMN `statusPayment` varchar(255) NOT NULL;
 
 -- Étape 1 : Supprimer la clé primaire existante
 ALTER TABLE `request` DROP PRIMARY KEY;
@@ -235,6 +212,32 @@ ALTER TABLE `request` MODIFY COLUMN `id` VARCHAR(36) CHARACTER SET ascii COLLATE
 
 -- Étape 3 : Ajouter la nouvelle clé primaire
 ALTER TABLE `request` ADD PRIMARY KEY (`id`);
+
+--
+-- Structure de la table `transaction`
+--
+-- Nouvelle configuration a faire
+CREATE TABLE `transaction` (
+  `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deletedAt` datetime(6) DEFAULT NULL,
+  `id` int(11) NOT NULL,
+  `requestId` VARCHAR(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `amount` decimal(10, 2) NOT NULL,
+  `lang` varchar(10) NOT NULL,
+  `currency` varchar(10) NOT NULL,
+  `channel` varchar(255) NOT NULL,
+  `reference` varchar(255) NOT NULL,
+  `country_code` varchar(10) NOT NULL,
+  `response` TEXT,
+  `status` enum('pending','succes', 'failed') NOT NULL DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Index pour la table `transaction`
+--
+ALTER TABLE `transaction`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_request_id` (`requestId`);
 
 --
 -- AUTO_INCREMENT pour la table `transaction`
@@ -248,6 +251,10 @@ ALTER TABLE `transaction`
 
 ALTER TABLE `transaction`
    ADD CONSTRAINT `FK_request_id` FOREIGN KEY (`requestId`) REFERENCES `request` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
+ALTER TABLE `request`
+  ADD COLUMN `statusPayment` varchar(255) NOT NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
