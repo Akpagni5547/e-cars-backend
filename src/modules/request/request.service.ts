@@ -114,7 +114,7 @@ export class RequestService {
       );
 
       // ensuite stocker les informations de paiements
-      const newTransaction =  this.transactionRepository.create({
+      const newTransaction = this.transactionRepository.create({
         channel: transaction.channel,
         amount: transaction.amount,
         lang: transaction.lang,
@@ -122,32 +122,52 @@ export class RequestService {
         country_code: transaction.country_code,
         requestId: id,
         reference: data.data.reference,
-        response: JSON.stringify(data.data)
+        response: JSON.stringify(data.data),
       });
       await this.transactionRepository.save(newTransaction);
 
       // send email
-      this.eventEmitter.emit(EVENTS.APPROVE_REQUEST, {
-        client: requestFounded.client,
-        car: requestFounded.car,
-        id: requestFounded.id,
-        adminEmail: 'akpagniaugustin@gmail.com',
-        paymentLink: data.data.url,
-        driver: requestFounded.isDelivery ? 'Oui' : 'Non',
-        out: requestFounded.isGoOutCity ? 'Oui' : 'Non',
-        city: requestFounded.isDriver ? 'Oui' : 'Non',
-      });
+      // this.eventEmitter.emit(EVENTS.APPROVE_REQUEST, {
+      //   client: requestFounded.client,
+      //   car: requestFounded.car,
+      //   id: requestFounded.id,
+      //   adminEmail: 'akpagniaugustin@gmail.com',
+      //   paymentLink: data.data.url,
+      //   driver: requestFounded.isDelivery ? 'Oui' : 'Non',
+      //   out: requestFounded.isGoOutCity ? 'Oui' : 'Non',
+      //   city: requestFounded.isDriver ? 'Oui' : 'Non',
+      // });
+      const message = `
+        Bonjour ${requestFounded.client.name}, nous sommes heureux de vous informer que votre demande a été acceptée.
+        Informations de la demande :
+        ID : ${requestFounded.id}
+        Modèle : ${requestFounded.car.model}
+        Marque : ${requestFounded.car.brand}
+
+        Procédez au paiement en cliquant sur le lien suivant : ${data.data.url}.
+
+        Après le paiement, vous recevrez une confirmation de réservation détaillée.
+        Pour des questions, contactez-nous au ${process.env.NUMBER_ADMIN}.
+        Merci de nous avoir choisis !`;
+      await this.sendSms(message, requestFounded.client.phone);
     } else {
       // send email
-      this.eventEmitter.emit(EVENTS.REFUSED_REQUEST, {
-        client: requestFounded.client,
-        car: requestFounded.car,
-        id: requestFounded.id,
-        adminEmail: 'akpagniaugustin@gmail.com',
-        driver: requestFounded.isDelivery ? 'Oui' : 'Non',
-        out: requestFounded.isGoOutCity ? 'Oui' : 'Non',
-        city: requestFounded.isDriver ? 'Oui' : 'Non',
-      });
+      // this.eventEmitter.emit(EVENTS.REFUSED_REQUEST, {
+      //   client: requestFounded.client,
+      //   car: requestFounded.car,
+      //   id: requestFounded.id,
+      //   adminEmail: 'akpagniaugustin@gmail.com',
+      //   driver: requestFounded.isDelivery ? 'Oui' : 'Non',
+      //   out: requestFounded.isGoOutCity ? 'Oui' : 'Non',
+      //   city: requestFounded.isDriver ? 'Oui' : 'Non',
+      // });
+      const message = `
+      Bonjour ${requestFounded.client.name}, votre demande a été refusée.
+      ID : ${requestFounded.id},
+      Modèle : ${requestFounded.car.model},
+      Marque : ${requestFounded.car.brand}.
+      Désolés. Pour plus d'infos, contactez-nous sur ce numero ${process.env.NUMBER_ADMIN}. Merci.`;
+      await this.sendSms(message, requestFounded.client.phone);
     }
     await this.requestRepository.update(id, {
       state: request.isAccept ? 'accepted' : 'declined',
@@ -193,16 +213,50 @@ export class RequestService {
       car: car,
     });
     await this.requestRepository.save(newRequest);
+    // Client
+    const messageClient = `
+    Bonjour ${request.clientName}, nous avons pris en compte votre demande.
+    Infos demande :
+    Modèle : ${car.model}
+    Marque : ${car.brand}
+    Options :
+    - Chauffeur : ${request.isDelivery == true ? 'Oui' : 'Non'}
+    - Livraison : ${request.isGoOutCity == true ? 'Oui' : 'Non'}
+    - Sortie de ville : ${request.isDriver == true ? 'Oui' : 'Non'}
+    Pour des questions, contactez-nous au ${process.env.NUMBER_ADMIN}.
+    Merci de nous choisir !`;
+    // Admin
+    const messageAdmin = `
+    Cher administrateur,
+    Un client a soumis une nouvelle demande de voiture :
 
-    this.eventEmitter.emit(EVENTS.REQUEST_ADD, {
-      client: newRequest.client,
-      car: newRequest.car,
-      id: newRequest.id,
-      adminEmail: 'akpagniaugustin@gmail.com',
-      driver: request.isDelivery ? 'Oui' : 'Non',
-      out: request.isGoOutCity ? 'Oui' : 'Non',
-      city: request.isDriver ? 'Oui' : 'Non',
-    });
+    Informations du client :
+    Nom : ${client.name}
+    Email : ${client.email}
+    Téléphone : ${client.phone}
+
+    Options de la demande :
+    - Option chauffeur : ${request.isDelivery == true ? 'Oui' : 'Non'}
+    - Option sortie en ville : ${request.isGoOutCity == true ? 'Oui' : 'Non'}
+    - Option livraison : ${request.isDriver == true ? 'Oui' : 'Non'}
+
+    Informations de la voiture :
+    Modèle : ${car.model}
+    Marque : ${car.brand}
+
+    Veuillez prendre en charge cette demande et résoudre les détails avec le client.
+    Merci !`;
+    await this.sendSms(messageClient, client.phone);
+    await this.sendSms(messageAdmin, process.env.NUMBER_ADMIN);
+    // this.eventEmitter.emit(EVENTS.REQUEST_ADD, {
+    //   client: newRequest.client,
+    //   car: newRequest.car,
+    //   id: newRequest.id,
+    //   adminEmail: 'akpagniaugustin@gmail.com',
+    //   driver: request.isDelivery ? 'Oui' : 'Non',
+    //   out: request.isGoOutCity ? 'Oui' : 'Non',
+    //   city: request.isDriver ? 'Oui' : 'Non',
+    // });
 
     return newRequest;
   }
@@ -216,5 +270,41 @@ export class RequestService {
       return this.requestRepository.softDelete(id);
     else throw new UnauthorizedException(''); */
     return this.requestRepository.softDelete(id);
+  }
+
+  private async sendSms(
+    message: string,
+    numbers: string | string[],
+  ): Promise<void> {
+    const apiUrl = process.env.SMS_URL;
+    const username = process.env.SMS_USERNAME;
+    const password = process.env.SMS_PASSWORD;
+    const sender = process.env.SMS_SENDER;
+
+    const numberArray = Array.isArray(numbers) ? numbers : [numbers];
+    const formattedNumbers = numberArray.map(this.formatPhoneNumber);
+    const toNumbers = formattedNumbers.join(';');
+    const encodedMessage = encodeURIComponent(message);
+    const url = `${apiUrl}?username=${username}&password=${password}&sender=${sender}&to=${toNumbers}&text=${encodedMessage}&type=text`;
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(url).pipe(
+          catchError(() => {
+            throw 'An error happened when sending sms';
+          }),
+        ),
+      );
+      console.log('SMS sent successfully:', response.data);
+    } catch (error) {
+      console.error('Error sending SMS:', error.message);
+      throw error;
+    }
+  }
+  private formatPhoneNumber(number: string): string {
+    const numericNumber = number.replace(/\D/g, '');
+    const formattedNumber = numericNumber.startsWith('225')
+      ? numericNumber
+      : `225${numericNumber}`;
+    return formattedNumber;
   }
 }
