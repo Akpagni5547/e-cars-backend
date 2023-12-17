@@ -15,13 +15,11 @@ import { AddRequestDto } from './dto/add-request.dto';
 import { RequestEntity } from '../../entities/request.entity';
 import { RequestService } from './request.service';
 import { UpdateRequestDto } from './dto/update-request.dto';
-import { Request} from "express"
+import { Request } from 'express';
 
 @Controller('request')
 export class RequestController {
-  constructor(
-    private requestService: RequestService,
-  ) {}
+  constructor(private requestService: RequestService) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -51,10 +49,13 @@ export class RequestController {
     @Param('id') id: string,
   ): Promise<RequestEntity> {
     const protocol = req.protocol;
-    const host = req.get("Host");
-    // const notifyUrl = `${protocol}//${host}/transaction/callback`;
-    const notifyUrl = "https://webhook.site/73058223-3c9a-45c6-80ee-586a0d05c393";
-    return await this.requestService.updateRequest(id, updateRequestDto, notifyUrl);
+    const host = req.get('Host');
+    const notifyUrl = `${protocol}//${host}/transaction/callback`;
+    return await this.requestService.updateRequest(
+      id,
+      updateRequestDto,
+      notifyUrl,
+    );
   }
 
   @Delete(':id')
